@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seleção de Plantão - Guará Space</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 30px auto;
+      padding: 20px;
+      background-color: #f0f0f0;
+      border-radius: 8px;
+    }
+    h1 {
+      text-align: center;
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+    }
+    select, input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+    }
+    button {
+      margin-top: 20px;
+      padding: 10px;
+      width: 100%;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    .success {
+      color: green;
+      margin-top: 15px;
+      text-align: center;
+    }
+  </style>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getDatabase, ref, get, set, child } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAL6uHWlUMaOtefScSkzsyi6FNNNnWrrLw",
+      authDomain: "plantao-guaraspace.firebaseapp.com",
+      databaseURL: "https://plantao-guaraspace-default-rtdb.firebaseio.com",
+      projectId: "plantao-guaraspace",
+      storageBucket: "plantao-guaraspace.firebasestorage.app",
+      messagingSenderId: "578201866700",
+      appId: "1:578201866700:web:1b3379c767741ad2c40d69"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const form = document.getElementById("formulario");
+      const feedback = document.getElementById("feedback");
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const nome = document.getElementById("nome").value.trim();
+        const setor = document.getElementById("setor").value.trim();
+        const horario = document.getElementById("horario").value;
+
+        if (!nome || !setor || !horario) {
+          feedback.textContent = "Preencha todos os campos.";
+          feedback.style.color = "red";
+          return;
+        }
+
+        const plantaoRef = ref(db, `plantoes/${horario}`);
+        const snapshot = await get(plantaoRef);
+        const data = snapshot.exists() ? snapshot.val() : [];
+
+        if (data.length >= (horario === "Ter 10:00-12:00" || horario === "Qui 14:00-16:30" ? 3 : 2)) {
+          feedback.textContent = "Esse horário já está completo.";
+          feedback.style.color = "red";
+          return;
+        }
+
+        data.push({ nome, setor });
+        await set(plantaoRef, data);
+        feedback.textContent = "Horário escolhido com sucesso!";
+        feedback.style.color = "green";
+        form.reset();
+      });
+    });
+  </script>
+</head>
+<body>
+  <h1>Escolha seu Plantão</h1>
+  <form id="formulario">
+    <label for="nome">Seu nome:</label>
+    <input type="text" id="nome" required>
+
+    <label for="setor">Setor que pertence:</label>
+    <input type="text" id="setor" required>
+
+    <label for="horario">Selecione o horário desejado:</label>
+    <select id="horario" required>
+      <option value="">-- Escolha um horário --</option>
+      <option value="Seg 14:00-16:30">Seg 14:00-16:30</option>
+      <option value="Ter 8:00-10:00">Ter 8:00-10:00</option>
+      <option value="Ter 10:00-12:00">Ter 10:00-12:00</option>
+      <option value="Ter 14:00-16:30">Ter 14:00-16:30</option>
+      <option value="Qua 14:00-16:30">Qua 14:00-16:30</option>
+      <option value="Qui 8:00-10:00">Qui 8:00-10:00</option>
+      <option value="Qui 10:00-12:00">Qui 10:00-12:00</option>
+      <option value="Qui 14:00-16:30">Qui 14:00-16:30</option>
+    </select>
+
+    <button type="submit">Confirmar plantão</button>
+    <div id="feedback" class="success"></div>
+  </form>
+</body>
+</html>
