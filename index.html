@@ -82,11 +82,23 @@
         const snapshot = await get(plantaoRef);
         const data = snapshot.exists() ? snapshot.val() : [];
 
-        if (data.length >= (horario === "Ter 10:00-12:00" || horario === "Qui 14:00-16:30" ? 3 : 2)) {
-          feedback.textContent = "Esse horário já está completo.";
-          feedback.style.color = "red";
-          return;
-        }
+        const limites = {
+  "Seg 14:00-16:30": 2,
+  "Ter 8:00-10:00": 2,
+  "Ter 10:00-12:00": 3,
+  "Ter 14:00-16:30": 3,
+  "Qua 14:00-16:30": 2,
+  "Qui 8:00-10:00": 2,
+  "Qui 10:00-12:00": 3,
+  "Qui 14:00-16:30": 3
+};
+
+if (data.length >= limites[horario]) {
+  feedback.textContent = "Esse horário já está completo.";
+  feedback.style.color = "red";
+  return;
+}
+
 
         data.push({ nome, setor });
         await set(plantaoRef, data);
