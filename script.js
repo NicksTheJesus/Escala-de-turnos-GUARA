@@ -8,7 +8,7 @@ const firebaseConfig = {
   projectId: "plantao-guaraspace",
   storageBucket: "plantao-guaraspace.firebasestorage.app",
   messagingSenderId: "578201866700",
-  appId: "1:578201866700:web:1b3379c767741ad2c40d69"
+  appId: "1:578201866700:web:1b3379c767741ad2c40d69",
 };
 
 firebase.initializeApp(firebaseConfig);
@@ -22,7 +22,7 @@ const horariosPermitidos = {
   "Qua 14:00-16:30": 2,
   "Qui 8:00-10:00": 2,
   "Qui 10:00-12:00": 3,
-  "Qui 14:00-16:30": 3
+  "Qui 14:00-16:30": 3,
 };
 
 const form = document.getElementById("form-turno");
@@ -45,11 +45,14 @@ function atualizarHorariosDisponiveis() {
       const ocupados = contagem[horario] || 0;
       const limite = horariosPermitidos[horario];
 
-      const option = document.createElement("option");
-      option.value = horario;
-      option.textContent = `${horario} (${limite - ocupados} vaga${limite - ocupados === 1 ? "" : "s"} restantes)`;
-      option.disabled = ocupados >= limite;
-      selectHorario.appendChild(option);
+      if (ocupados < limite) {
+        const option = document.createElement("option");
+        option.value = horario;
+        option.textContent = `${horario} (${
+          limite - ocupados
+        } vagas restantes)`;
+        selectHorario.appendChild(option);
+      }
     }
   });
 }
