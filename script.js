@@ -40,7 +40,9 @@ function atualizarHorariosDisponiveis() {
       contagem[inscricao.horario] = (contagem[inscricao.horario] || 0) + 1;
     });
 
-    selectHorario.innerHTML = "";
+    selectHorario.innerHTML =
+      '<option value="">-- Escolha um horário --</option>';
+
     for (let horario in horariosPermitidos) {
       const ocupados = contagem[horario] || 0;
       const limite = horariosPermitidos[horario];
